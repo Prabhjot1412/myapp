@@ -1,4 +1,7 @@
 import { useState } from "react"
+import Consts from "../consts.json"
+import { FaChevronUp} from 'react-icons/fa'
+
 
 const Calculator = () => {
   const [showCalendarform, setShowCalendarForm] = useState(false)
@@ -6,12 +9,14 @@ const Calculator = () => {
   const [calculatedAmount, setCalculatedAmount] = useState(false)
   const [showCalculatedAmount, setShowCalculatedAmount] = useState(false)
   const [stepper, setStepper] = useState(1)
+  const [showMonthsFunds, setShowMonthsFunds] = useState(false)
 
   const calculateAmount = () => {
     console.log(formData)
     if(!(formData["yearlyReturns"]) || !(formData["goal"]) || !(formData["timeInYears"])) {
       return
     }
+    setMonthlysavingsInFormData((formData["goal"] / formData["timeInYears"])/12)
 
     let years = document.getElementById('yearlyInput')
     let goal = document.getElementById('goal')
@@ -29,6 +34,15 @@ const Calculator = () => {
     }
 
     setShowCalculatedAmount(true)
+  }
+
+  const setMonthlysavingsInFormData = (monthlySavings) => {
+    Array.from(Array(parseInt(formData['timeInYears']))).map((_, i) => {
+      let monthArray = Array(12).fill(monthlySavings)
+      formData[new Date().getFullYear() + i] = monthArray
+    })
+
+    console.log(formData)
   }
 
   const handleAmountChangeYearly = (event) => {
@@ -88,7 +102,7 @@ const Calculator = () => {
           onClick={() => {setShowCalendarForm(!showCalendarform)}}
         >
           New Calendar
-        </ button>
+        </button>
       </div>
       <hr />
       { showCalendarform ?
@@ -122,6 +136,7 @@ const Calculator = () => {
 
                 <input className="shadow appearance-none border rounded w-7/12 py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="goal"
+                  value={formData["goal"]}
                   type="number"
                   placeholder="100000000"
                   onChange={(event) => {setFormData({...formData, goal: event.target.value})}}
@@ -135,6 +150,7 @@ const Calculator = () => {
 
                 <input className="shadow appearance-none border rounded w-7/12 py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="yearlyReturnsPercentage"
+                  value={formData["yearlyReturns"]}
                   type="number"
                   placeholder="4.75"
                   onChange={(event) => {setFormData({...formData, yearlyReturns: event.target.value})}}
@@ -165,11 +181,57 @@ const Calculator = () => {
           }
           {stepper == 2 &&
             <div>
-              <div className={`bg-cyan-100 hover:bg-cyan-200 rounded-lg mb-5 mt-2 flex`} style={{justifyContent: "space-between"}}>
-                <div className="flex ml-5">
-                  abcd
+              {formData['timeInYears'] && Array.from(Array(parseInt(formData['timeInYears']))).map((_, index) =>{
+              return(
+                <div className={`bg-cyan-100 hover:bg-cyan-200 rounded-lg mb-5 mt-2 flex p-3`} style={{justifyContent: "space-between"}}
+                  onClick={(event) => {
+                    if (event.target.getAttribute('closeaction') || event.target.parentElement.getAttribute('closeaction') || event.target.parentElement.parentElement.getAttribute('closeaction') ) {
+                      setShowMonthsFunds(false);
+                      return;
+                    }
+
+                    setShowMonthsFunds(new Date().getFullYear() + index);
+                  }}
+                >
+                  <div className="ml-5" style={{width: "100%"}}>
+                    <div className="flex justify-between" style={{justifyContent: "space-between"}}>
+                      <span>{new Date().getFullYear() + index}</span>
+
+                      <span>
+                        {parseFloat(formData[new Date().getFullYear() + index].reduce((x,y) => {
+                          return x + parseFloat(y)
+                        }, 0.0)).toFixed(4)}
+                      </span>
+                    </div>
+                    {
+                      showMonthsFunds == (new Date().getFullYear() + index) &&
+                      <div>
+                        <br />
+                        {formData[new Date().getFullYear() + index].map((v, i) => {
+                          return(
+                            <div className="flex justify-between">
+                              <span>{Consts.months[i]}</span>
+
+                              <input
+                                className="m-3"
+                                type="number"
+                                defaultValue={v}
+                                onChange={(event) => {
+                                  formData[new Date().getFullYear() + index][i] = event.target.value
+                                }}
+                              />
+                            </div>
+                          )
+                        })}
+                        <button closeaction='true' className="hover:bg-cyan-300 p-2 rounded transition-all duration-200">
+                          <FaChevronUp closeaction='true' />
+                        </button>
+                      </div>
+                    }
+                  </div>
                 </div>
-              </div>
+              )
+              })}
             </div>
           }
         </div> : null

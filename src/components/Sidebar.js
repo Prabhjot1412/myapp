@@ -66,7 +66,7 @@ const Sidebar = (props) => {
                   <span className="ms-3">General</span>
                   <span className="ml-20" > { dropIcon(generalDropdown) } </span>
                 </button>
-                { generalDropdown &&
+              { generalDropdown &&
                 <div>
                   <button onClick={() => setActive('photo')}>
                     <div className={`ml-11 ${isActive('photo')}`}>
@@ -96,7 +96,7 @@ const Sidebar = (props) => {
                     </div>
                   </button>
                 </div>
-                }
+              }
             </li>
             <li className="hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700">
               <button onClick={() => {setActive('calculator')}} className={`flex items-center p-2 ${isActive('calculator')} rounded-lg dark:text-white group`}>
